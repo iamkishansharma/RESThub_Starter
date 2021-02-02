@@ -12,6 +12,15 @@ class DataServices{
     static let shared = DataServices()
     fileprivate let baseURLString = "https://api.github.com"
     
+    let customSession: URLSession = {
+        let customConfig = URLSessionConfiguration.default
+//        let backgroundConfig = URLSessionConfiguration.background(withIdentifier: "")
+        customConfig.networkServiceType = .video
+        customConfig.allowsCellularAccess = true
+        
+        return URLSession(configuration: customConfig)
+    }()
+    
     func fetchGists(completion: @escaping (Result<[Gist],Error>) -> Void){
 //        var baseURL = URL(string: baseURLString)
 //        baseURL?.appendPathComponent("/somePath")
@@ -71,15 +80,15 @@ class DataServices{
         postRequest.setValue("application/json", forHTTPHeaderField: "Accept")
         
         
-        let newGist = Gist(id: nil, isPublic: true, description: "A brand new gist", files: ["test_file.txt": File(content: "Hello World!")])
+//        let newGist = Gist(id: nil, isPublic: true, description: "A brand new gist", files: ["test_file.txt": File(content: "Hello World!")])
         
-        do{
-            let gistData = try JSONEncoder().encode(newGist)
-            postRequest.httpBody = gistData
-            
-        }catch{
-            print("Gist encodeing failed...")
-        }
+//        do{
+//            let gistData = try JSONEncoder().encode(newGist)
+//            postRequest.httpBody = gistData
+//
+//        }catch{
+//            print("Gist encodeing failed...")
+//        }
         
         URLSession.shared.dataTask(with: postRequest){(data, response, error) in
             if let httpResponse = response as? HTTPURLResponse{
