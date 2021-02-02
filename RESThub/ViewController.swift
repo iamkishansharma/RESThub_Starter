@@ -33,6 +33,8 @@ class ViewController: UIViewController {
             }
             
         }*/
+        
+        //call starUnStar function to check
     }
 
     @IBAction func createNewGist(_ sender: UIButton) {

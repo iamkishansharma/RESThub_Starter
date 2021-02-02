@@ -65,6 +65,12 @@ class DataServices{
         
         var postRequest = URLRequest(url: composedURL)
         postRequest.httpMethod = "POST"
+        
+        postRequest.setValue("Basic \(createAuthCredentials())", forHTTPHeaderField: "Authorization")
+        postRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        postRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+        
+        
         let newGist = Gist(id: nil, isPublic: true, description: "A brand new gist", files: ["test_file.txt": File(content: "Hello World!")])
         
         do{
@@ -102,5 +108,42 @@ class DataServices{
         components.path = path
         
         return components
+    }
+    
+    func createAuthCredentials()->String{
+        let authString = "skishan781@gmail.com"
+        var authStringBase64 = ""
+        
+        if let authData = authString.data(using: .utf8){
+            authStringBase64 = authData.base64EncodedString()
+        }
+        
+        return authStringBase64
+    }
+    
+    func starUnstargist(id: String, star: Bool, completion: @escaping (Bool)-> Void){
+        let starComponents = createURLComponents(path: "/gits/\(id)/star")
+        guard let composedURL = starComponents.url else{
+            print("Component composition failed...")
+            return
+        }
+        
+        var starRequest = URLRequest(url: composedURL)
+        starRequest.httpMethod = star == true ? "PUT" : "DELETE"
+        
+        starRequest.setValue("0", forHTTPHeaderField: "Content-Length")
+        starRequest.setValue("Basic \(createAuthCredentials())", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: starRequest){(data, response, error) in
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("Status code: \(httpResponse.statusCode)")
+                if httpResponse.statusCode == 204 {
+                    completion(true)
+                } else {
+                    completion(false)
+                }
+            }
+        }.resume()
     }
 }
